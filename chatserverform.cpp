@@ -21,13 +21,13 @@ ChatServerForm::ChatServerForm(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::chatserverForm), totalSize(0), byteReceived(0)
 {
-    ui->setupUi(this);
-    QList<int> sizes;
+    ui->setupUi(this); //ui 만들기
+    QList<int> sizes; //사이즈 설정
     sizes << 120 << 500;
-    ui->splitter->setSizes(sizes);
+    ui->splitter->setSizes(sizes); //스플리터로 마우스로 조정 가능
 
     chatServer = new QTcpServer(this);
-    connect(chatServer, SIGNAL(newConnection( )), SLOT(clientConnect( )));
+    connect(chatServer, SIGNAL(newConnection( )), SLOT(clientConnect( ))); //connect로 고객연결
     if (!chatServer->listen(QHostAddress::Any, PORT_NUMBER)) {
         QMessageBox::critical(this, tr("Chatting Server"), \
                               tr("Unable to start the server: %1.") \
@@ -36,8 +36,8 @@ ChatServerForm::ChatServerForm(QWidget *parent) :
         return;
     }
 
-    fileServer = new QTcpServer(this);
-    connect(fileServer, SIGNAL(newConnection()),SLOT(acceptConnection()));
+    fileServer = new QTcpServer(this); //파일을 주고 받기 위한 fileServer생성
+    connect(fileServer, SIGNAL(newConnection()),SLOT(acceptConnection())); //파일을 연결하기 위한 connect
     if(!fileServer->listen(QHostAddress::Any, PORT_NUMBER+1)){
         QMessageBox::critical(this, tr("chatting Server"),
                               tr("Unable to start the server: %1.").arg(fileServer->errorString()));
@@ -47,36 +47,36 @@ ChatServerForm::ChatServerForm(QWidget *parent) :
 
     qDebug("Start listening ...");
 
-    QAction* inviteAction = new QAction(tr("&Invite"));
+    QAction* inviteAction = new QAction(tr("&Invite")); //초대 액션이 일어났을때
     inviteAction->setObjectName("Invite");
     connect(inviteAction, SIGNAL(triggered()), SLOT(inviteClient()));
 
-    QAction* removeAction = new QAction(tr("&Kick out"));
+    QAction* removeAction = new QAction(tr("&Kick out")); //강퇴 액션
     connect(removeAction, SIGNAL(triggered()), SLOT(kickOut()));
 
 
-    QPushButton* connectbutton = new QPushButton(tr("&connectbutton"));
+    QPushButton* connectbutton = new QPushButton(tr("&connectbutton")); // 초대 버튼
     connectbutton->setObjectName("connectbutton");
-    connect(connectbutton, SIGNAL(clicked()), SLOT(inviteClient()));
+    connect(connectbutton, SIGNAL(clicked()), SLOT(inviteClient())); //초대 버튼 connet연결
 
 
-    QPushButton* exitbuton = new QPushButton(tr("&exit"));
-    connect(exitbuton, SIGNAL(clicked()), SLOT(kickOut()));
+    QPushButton* exitbuton = new QPushButton(tr("&exit")); // 강퇴버튼
+    connect(exitbuton, SIGNAL(clicked()), SLOT(kickOut())); // connect로 강퇴버튼 연결
 
     menu = new QMenu;
-    menu->addAction(inviteAction);
-    menu->addAction(removeAction);
+    menu->addAction(inviteAction); // 초대 액션
+    menu->addAction(removeAction); // 퇴장 액션
 
     ui->clientTreeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    progressDialog = new QProgressDialog(0);
+    progressDialog = new QProgressDialog(0); //file 보낼때 progressDialog 시각화
     progressDialog->setAutoClose(true);
-    progressDialog->reset();
+    progressDialog->reset(); //완료 되었다면 reset
 
     logThread = new LogThread(this);
     logThread->start();
 
-    connect(ui->savebutton, SIGNAL(clicked()), logThread, SLOT(saveData()));
+    connect(ui->savebutton, SIGNAL(clicked()), logThread, SLOT(saveData())); // server에 저장된 데이터를 저장하기 위한 connect
 
     qDebug() << tr("The server is running on port %1.").arg(chatServer->serverPort( ));
 }
@@ -84,9 +84,9 @@ ChatServerForm::ChatServerForm(QWidget *parent) :
 ChatServerForm::~ChatServerForm()
 {
     delete ui;
-    logThread->terminate();
-    chatServer->close();
-    fileServer->close( );
+    logThread->terminate();  //소멸자
+    chatServer->close();    // 채팅닫기
+    fileServer->close( );   // 파일 닫기
 }
 
 void ChatServerForm::message()
@@ -96,7 +96,7 @@ void ChatServerForm::message()
     qDebug("입력중~");
 }
 
-void ChatServerForm::acceptConnection()
+void ChatServerForm::acceptConnection() // client를 연결하귀 위한 함수
 {
     qDebug("Connected, preparing to receive files!");
 
@@ -114,8 +114,8 @@ void ChatServerForm::clientConnect( )
 
 void ChatServerForm::receiveData( )
 {
-    QTcpSocket *clientConnection = dynamic_cast<QTcpSocket *>(sender( ));
-    QByteArray bytearray = clientConnection->read(BLOCK_SIZE);
+    QTcpSocket *clientConnection = dynamic_cast<QTcpSocket *>(sender( )); //TcpSoket 연결 형변환
+    QByteArray bytearray = clientConnection->read(BLOCK_SIZE); //1024데이터를 읽어온다
 
     Chat_Status type;       // 채팅의 목적
     char data[1020];        // 전송되는 메시지/데이터

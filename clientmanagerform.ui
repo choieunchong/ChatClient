@@ -6,18 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>575</width>
-    <height>346</height>
+    <width>643</width>
+    <height>433</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Client Info</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5">
-   <item>
-    <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,1">
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
+  <layout class="QGridLayout" name="gridLayout_2">
+   <item row="0" column="0">
+    <layout class="QGridLayout" name="gridLayout" rowstretch="0,1" columnstretch="0">
+     <item row="0" column="0">
+      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,0,0">
+       <property name="spacing">
+        <number>0</number>
+       </property>
        <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
@@ -59,47 +62,23 @@
        </item>
       </layout>
      </item>
-     <item>
+     <item row="1" column="0">
       <widget class="QSplitter" name="splitter">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
-       <widget class="QTreeWidget" name="treeWidget">
-        <property name="rootIsDecorated">
-         <bool>false</bool>
-        </property>
-        <column>
-         <property name="text">
-          <string>ID</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Name</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Phone Number</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Address</string>
-         </property>
-        </column>
-       </widget>
+       <widget class="QTableView" name="tableView"/>
        <widget class="QToolBox" name="toolBox">
         <property name="currentIndex">
-         <number>0</number>
+         <number>1</number>
         </property>
         <widget class="QWidget" name="inputPage">
          <property name="geometry">
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>285</width>
-           <height>258</height>
+           <width>258</width>
+           <height>345</height>
           </rect>
          </property>
          <attribute name="label">
@@ -195,8 +174,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>285</width>
-           <height>258</height>
+           <width>258</width>
+           <height>345</height>
           </rect>
          </property>
          <attribute name="label">

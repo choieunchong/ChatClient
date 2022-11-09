@@ -8,6 +8,7 @@
 class orderitem;
 class QMenu;
 class QTreeWidgetItem;
+class QSqlTableModel;
 
 namespace Ui {
 class OrderManagerForm;
@@ -25,6 +26,12 @@ public:
     ClientManagerForm *client;
     ProductManagerForm *product;
 
+public slots:
+    void addClient(int, QString);
+    void addProduct(int, QString);
+    void getClientInfo(QString, QString, QString);     // 응답
+    void getProductInfo(QString, int, int);     // 응답
+
 private slots:
 
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
@@ -32,24 +39,29 @@ private slots:
     void on_searchPushButton_clicked();
     void showContextMenu(const QPoint &);
     void removeItem();
-    void addProduct(ProductItem*);
-    void total(ProductItem*);
-     void addClient(ClientItem*);
+    void total(QString);
      void on_ClientW_itemClicked(QTreeWidgetItem *item, int column);
-
      void on_ProductW_itemClicked(QTreeWidgetItem *item, int column);
+     void on_modifyPushButton_clicked();
+
+     void on_clientcombo_currentIndexChanged(int index);
+
+     void on_productcombo_currentIndexChanged(int index);
+
+     void on_countspin_valueChanged(int arg1);
 
 signals:
-    void orderAdded(orderitem*);
     void datasant(QString);
+    void getClientInfo(int);            // 요청
+    void getProductInfo(int);           // 요청
 private:
     Ui::OrderManagerForm* ui;
-
     QMap<int, orderitem*> OrderList;
     int makeId();
     QMenu* menu;
-    QTreeWidgetItem* tree;
-
+    QList<int> clientIDList;
+    QList<int> productIDList;
+    QSqlTableModel* orderModel;
 
 };
 

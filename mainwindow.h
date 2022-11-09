@@ -30,7 +30,7 @@ private:
     ClientManagerForm *clientForm;
     ProductManagerForm *productForm;
     OrderManagerForm* orderForm;
-    ChatServerForm* chatserverForm;
+    ChatServerForm* chatServerForm;
 
 };
 #endif // MAINWINDOW_H

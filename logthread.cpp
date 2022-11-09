@@ -14,7 +14,7 @@ LogThread::LogThread(QObject *parent)
 void LogThread::run()
 {
     Q_FOREVER {
-        saveData();
+        saveData();     //저장 함수
         sleep(60);      // 1분마다 저장
     }
 }

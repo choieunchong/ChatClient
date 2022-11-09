@@ -7,6 +7,8 @@
 class ClientItem;
 class QMenu;
 class QTreeWidgetItem;
+class QSqlTableModel;
+class QSqlDatabase;
 
 namespace Ui {
 class ClientManagerForm;
@@ -23,24 +25,28 @@ public:
 
 private slots:
     /* QTreeWidget을 위한 슬롯 */
-    void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
+
     void showContextMenu(const QPoint &);
     void removeItem();              /* QAction을 위한 슬롯 */
     void on_addPushButton_clicked(); // 추가버튼 함수
     void on_modifyPushButton_clicked();
     void on_searchPushButton_clicked();
-    void addClient(ClientItem*);
+//    void addClient(ClientItem*);
+    void acceptClientInfo(int);
+    void on_tableView_clicked(const QModelIndex &index);
 
 signals:
-    void clientAdded(ClientItem*);
-      void talktoorder(QMap<int, ClientItem*>*);
-      void tcpClient(int, QString);
+    void clientAdded(int,QString);
+    void talktoorder(QMap<int, ClientItem*>*);
+    void tcpClient(int, QString);
+    void sendClientInfo(QString, QString, QString);
 private:
     int makeId();
 
-    QMap<int, ClientItem*> clientList;
+  //  QMap<int, ClientItem*> clientList;
     Ui::ClientManagerForm *ui;
     QMenu* menu;
+    QSqlTableModel* clientModel;
 };
 
 #endif // CLIENTMANAGERFORM_H

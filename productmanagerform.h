@@ -19,9 +19,9 @@ class ProductManagerForm : public QWidget
 public:
     explicit ProductManagerForm(QWidget *parent = nullptr);
     ~ProductManagerForm();
-   void loadData();
+    void loadData();
 
- QMap<int, ProductItem*>& getProducts(){return ProductList;}
+    QMap<int, ProductItem*>& getProducts(){return ProductList;}
 
 private slots:
     /* QTreeWidget을 위한 슬롯 */
@@ -32,11 +32,13 @@ private slots:
     void on_modifyPushButton_clicked();
     void on_searchPushButton_clicked();
 
-    void addProduct(ProductItem*);
+  //  void addProduct(ProductItem*);
+    void acceptProductInfo(int);
+
 
 signals:
-    void productAdded(ProductItem*);
-
+    void productAdded(int, QString);
+    void sendProductInfo(QString, int, int);
     void talktoorder(QMap<int, ProductItem*>*);
 
 private:

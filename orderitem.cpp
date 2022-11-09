@@ -1,6 +1,7 @@
 #include "orderitem.h"
 
-orderitem::orderitem(int id, QString Clientname,QString ProductName, int Price, int Count, int Total)
+orderitem::orderitem(int id, int cid, int pid,
+                     QString Clientname,QString ProductName, int Price, int Count, int Total)
 {
     setText(0, QString::number(id));
     setText(1, Clientname);
@@ -13,6 +14,28 @@ orderitem::orderitem(int id, QString Clientname,QString ProductName, int Price, 
 int orderitem::id() const
 {
     return text(0).toInt();
+}
+
+int orderitem::getCid() const
+{
+    return cid;     // text(1).toInt();
+}
+
+void orderitem::setCid(int& id)
+{
+    cid = id;
+    setText(1, QString::number(id));
+}
+
+int orderitem::getPid() const
+{
+    return pid;     // text(2).toInt();
+}
+
+void orderitem::setPid(int& id)
+{
+    pid = id;
+    setText(2, QString::number(id));
 }
 
 QString orderitem::getName() const
@@ -65,3 +88,6 @@ void orderitem::setTotal(int &count)
     setText(5,QString::number(count));
 }
 
+bool orderitem::operator==(const orderitem &other) const {
+    return (this->text(1) == other.text(1));
+}

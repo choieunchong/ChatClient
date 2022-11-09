@@ -28,10 +28,10 @@ ProductManagerForm::ProductManagerForm(QWidget *parent) :
 }
 
 
-void ProductManagerForm::addProduct(ProductItem*)
-{
-    emit talktoorder(&ProductList);
-}
+//void ProductManagerForm::addProduct(ProductItem*)
+//{
+//    emit talktoorder(&ProductList);
+//}
 
 void ProductManagerForm::loadData()
 {
@@ -49,7 +49,7 @@ void ProductManagerForm::loadData()
             ui->treeWidget->addTopLevelItem(c);
             ProductList.insert(id, c);
 
-            emit productAdded(c);
+            emit productAdded(id,row[1]);
         }
     }
     file.close( );
@@ -143,7 +143,7 @@ void ProductManagerForm::on_addPushButton_clicked()
         ProductItem* c = new ProductItem(id, name, type, price.toInt(), stock.toInt());
         ProductList.insert(id, c);
         ui->treeWidget->addTopLevelItem(c);
-        emit productAdded(c);
+        emit productAdded(id,name);
     }
 }
 

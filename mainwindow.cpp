@@ -5,17 +5,22 @@
 #include "ordermanagerform.h"
 #include "chatserverform.h"
 
+#include <QSqlDatabase>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
-    ui->setupUi(this);
-    //    ClientManagerForm *clientForm1 = new ClientManagerForm(0);
-    //    clientForm1->show();
 
     orderForm = new OrderManagerForm(this);
     orderForm->loadData();
     orderForm->setWindowTitle(tr("Order Info"));
+
+    orderForm->client = clientForm;
+    orderForm->product = productForm;
+
+    chatServerForm = new ChatServerForm(this);
+    chatServerForm->setWindowTitle("Chatting Server");
 
     connect(orderForm, SIGNAL(destroyed()),
             orderForm, SLOT(deleteLater()));
@@ -23,40 +28,44 @@ MainWindow::MainWindow(QWidget *parent)
     clientForm = new ClientManagerForm(this);
     connect(clientForm, SIGNAL(destroyed()),
             clientForm, SLOT(deleteLater()));
-    connect(clientForm, SIGNAL(clientAdded(ClientItem*)),
-            orderForm, SLOT(addClient(ClientItem*)));
+    connect(clientForm, SIGNAL(clientAdded(int, QString)),
+            orderForm, SLOT(addClient(int, QString)));
+    connect(clientForm, SIGNAL(sendClientInfo(QString, QString, QString)),
+            orderForm, SLOT(getClientInfo(QString, QString, QString)));
+    connect(clientForm, SIGNAL(clientAdded(int, QString)),
+            chatServerForm, SLOT(addClient(int, QString)));
 
-
+    clientForm->loadData();
     clientForm->setWindowTitle(tr("Client Info"));
-    //    ui->tabWidget->addTab(clientForm, "&Client Info");
 
     productForm = new ProductManagerForm(this);
     connect(productForm, SIGNAL(destroyed()),
             productForm, SLOT(deleteLater()));
-    connect(productForm, SIGNAL(productAdded(ProductItem*)),
-            orderForm, SLOT(addProduct(ProductItem*)));
+    connect(productForm, SIGNAL(productAdded(int, QString)),
+            orderForm, SLOT(addProduct(int, QString)));
+    connect(productForm, SIGNAL(sendProductInfo(QString, int, int)),
+            orderForm, SLOT(getProductInfo(QString, int, int)));
 
-    chatserverForm = new ChatServerForm(this);
+
     productForm->loadData();
     productForm->setWindowTitle(tr("Product Info"));
 
     orderForm->client = clientForm;
     orderForm->product = productForm;
 
-
-    connect(chatserverForm, SIGNAL(destroyed()),
-            chatserverForm, SLOT(deleteLater()));
+    connect(chatServerForm, SIGNAL(destroyed()),
+            chatServerForm, SLOT(deleteLater()));
 
     connect(clientForm, SIGNAL(tcpClient(int, QString)),
-            chatserverForm, SLOT(addClient(int, QString)));
+            chatServerForm, SLOT(addClient(int, QString)));
 
     clientForm->loadData();
 
-    chatserverForm->setWindowTitle(tr("chat Info"));
+    chatServerForm->setWindowTitle(tr("chat Info"));
     QMdiSubWindow *cw = ui->mdiArea->addSubWindow(clientForm);
     ui->mdiArea->addSubWindow(productForm);
     ui->mdiArea->addSubWindow(orderForm);
-    ui->mdiArea->addSubWindow(chatserverForm);
+    ui->mdiArea->addSubWindow(chatServerForm);
     ui->mdiArea->setActiveSubWindow(cw);
 }
 
@@ -90,8 +99,8 @@ void MainWindow::on_actionOrder_triggered()
 
 void MainWindow::on_actionServer_triggered()
 {
-    if(chatserverForm != nullptr) {
-        chatserverForm->setFocus();
+    if(chatServerForm != nullptr) {
+        chatServerForm->setFocus();
     }
 }
 
