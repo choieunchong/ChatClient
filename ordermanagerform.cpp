@@ -29,7 +29,7 @@ OrderManagerForm::OrderManagerForm(QWidget *parent)
     connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(ui->searchLineEdit, SIGNAL(returnPressed()),
             this, SLOT(on_searchPushButton_clicked()));
-    connect(ui->addPushButton, SIGNAL(pressed()), this, SLOT(on_addButton_Clicked()));
+    connect(ui->addPushButton, SIGNAL(pressed()), this, SLOT(on_addPushButton_clicked()));
     connect(ui->countspin, SIGNAL(textChanged(QString)),this, SLOT(total(QString)));
 }
 
@@ -57,61 +57,61 @@ void OrderManagerForm::showContextMenu(const QPoint &pos)
     menu->exec(globalPos);
 }
 
-void OrderManagerForm::on_addButton_Clicked()
+void OrderManagerForm::getProductInfo( QString name, QString type, int price, int count)     // 응답
 {
-    //  QString ClientName,ProductName, Price, Count, Total;//= ;;
-    int id = makeId();
-    int cid,pid, Price, Count, Total;;
-    cid = clientIDList[ui->clientcombo->currentIndex()];
-    pid = productIDList[ui->productcombo->currentIndex()];
-    Price = ui->PriceLineEdit->text().toInt();
-    Count = ui->countspin->text().toInt();
-    Total = ui->TotalLineEdit->text().toInt();
-    QString cname = ui->clientcombo->itemText(clientIDList.indexOf(cid));
-    QString pname = ui->productcombo->itemText(productIDList.indexOf(pid));
+    ui->ProductW->clear();
+    QTreeWidgetItem *item = new QTreeWidgetItem(ui->ProductW);
+  // item->setText(0, QString::number(id));
+    item->setText(1, name);
+    item->setText(2,type);
+    item->setText(3, QString::number(price));
+    item->setText(4, QString::number(count));
 
-    if(cname.length()) {
-        QSqlQuery query(orderModel->database());
-        query.prepare("INSERT INTO client VALUES (?, ?, ?, ?)");
-        query.bindValue(0, id);
-        query.bindValue(1, cname);
-        query.bindValue(2, pname);
-        query.bindValue(3, Price);
-        query.bindValue(4, Count);
-        query.bindValue(5, Total);
-        query.exec();
-        orderModel->select();
-        ui->tableView->resizeColumnsToContents();
+    ui->PriceLineEdit->setText(QString::number(price));
 
-    }
+    //    QIntValidator *v = new QIntValidator(0, price, this);
+    //    ui->quantityLineEdit->setValidator(v);
+    ui->countspin->setMaximum(count);
 }
+
+void OrderManagerForm::getClientInfo(QString name, QString phoneNumber, QString address)
+{
+    ui->ClientW->clear();
+    QTreeWidgetItem *item = new QTreeWidgetItem(ui->ClientW);
+ //   item->setText(0,QString::number (id));
+    item->setText(1, name);
+    item->setText(2, phoneNumber);
+    item->setText(3, address);
+}
+
 
 int OrderManagerForm::makeId() //주문정보의 아이디 생성후 증가 방법
 {
     if(OrderList.size( ) == 0) {
         return 100;
     } else {
-        auto id = OrderList.lastKey();
+        auto id = orderModel->data(orderModel->index(orderModel->rowCount()-1, 0)).toInt();
         return ++id;
     }
 }
 
 void OrderManagerForm::loadData() //주문정보에 txt파일로 저장하기 위한 함수
 {
-    QSqlDatabase db = QSqlDatabase::database();
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE","orderConnection");
     db.setDatabaseName("orderlist.db");
-    if (db.open( )) {
-        QSqlQuery query;
-        query.exec("CREATE TABLE IF NOT EXISTS client(id INTEGER Primary Key, name VARCHAR(30) NOT NULL, phoneNumber VARCHAR(20) NOT NULL, address VARCHAR(50));");
-        orderModel = new QSqlTableModel();
+    if (db.open()) {
+        QSqlQuery query(db);
+        query.exec("CREATE TABLE IF NOT EXISTS order(id INTEGER Primary Key, cname VARCHAR(30) NOT NULL, "
+                   "pname VARCHAR(30) NOT NULL, price number(20), count number(20), toal number(20));");
+        orderModel = new QSqlTableModel(this,db);
         orderModel->setTable("order");
         orderModel->select();
-        orderModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
+        orderModel->setHeaderData(0, Qt::Horizontal, tr("id"));
         orderModel->setHeaderData(1, Qt::Horizontal, tr("cName"));
         orderModel->setHeaderData(2, Qt::Horizontal, tr("pname"));
         orderModel->setHeaderData(3, Qt::Horizontal, tr("price"));
-        orderModel->setHeaderData(3, Qt::Horizontal, tr("count"));
-        orderModel->setHeaderData(3, Qt::Horizontal, tr("total"));
+        orderModel->setHeaderData(4, Qt::Horizontal, tr("count"));
+        orderModel->setHeaderData(5, Qt::Horizontal, tr("total"));
 
         ui->tableView->setModel(orderModel);
         ui->tableView->resizeColumnsToContents();
@@ -135,20 +135,6 @@ OrderManagerForm::~OrderManagerForm() //소멸자 종료될때 order.txt파일�
     }
 }
 
-
-void OrderManagerForm::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column) //treeWidget에 item이 클릭이 될때 럼 위치에 아이디,
-{                                                                                   // client이름, product이름, 가격, 개수를 불러온다.
-    Q_UNUSED(column);
-    emit getClientInfo(clientIDList[ui->clientcombo->findText(item->text(1))]);
-    emit getProductInfo(productIDList[ui->productcombo->findText(item->text(2))]);
-    ui->idLineEdit->setText(item->text(0));
-    ui->clientcombo->setCurrentText(item->text(1));
-    ui->productcombo->setCurrentText(item->text(2));
-    ui->PriceLineEdit->setText(item->text(3));
-    ui->countspin->setValue(item->text(4).toInt());
-    ui->toolBox->setCurrentIndex(0);
-}
-
 void OrderManagerForm::removeItem() // 우 클릭을 할때 제거 액션 함수
 {
     QModelIndex index = ui->tableView->currentIndex();
@@ -167,7 +153,6 @@ void OrderManagerForm::on_searchPushButton_clicked()
     auto flag = (i)? Qt::MatchCaseSensitive|Qt::MatchContains
                    : Qt::MatchCaseSensitive;
     QModelIndexList indexes = orderModel->match(orderModel->index(0, i), Qt::EditRole, ui->searchLineEdit->text(), -1, Qt::MatchFlags(flag));
-
 
     foreach(auto ix, indexes) {
         int id = orderModel->data(ix.siblingAtColumn(0)).toInt(); //c->id();
@@ -199,7 +184,6 @@ void OrderManagerForm::on_ProductW_itemClicked(QTreeWidgetItem *item, int column
     ui->PriceLineEdit->setText(item->text(3));
 }
 
-
 void OrderManagerForm::on_modifyPushButton_clicked()
 {
     QModelIndex index = ui->tableView->currentIndex();
@@ -207,7 +191,7 @@ void OrderManagerForm::on_modifyPushButton_clicked()
         //      int key = item->text(0).toInt();
         // orderitem* o = OrderList[key];
         QString Clientname, Productname;
-        int price,count;
+        int  price,count;
         Clientname = ui->clientcombo->currentText();
         Productname = ui->productcombo->currentText();
         price = ui->PriceLineEdit->text().toInt();
@@ -218,28 +202,70 @@ void OrderManagerForm::on_modifyPushButton_clicked()
         orderModel->setData(index.siblingAtColumn(4), count);
         orderModel->submit();
 
-        orderModel->select();
+//        orderModel->select();
         ui->tableView->resizeColumnsToContents();
     }
 }
-
 
 void OrderManagerForm::on_clientcombo_currentIndexChanged(int index)
 {
     emit getClientInfo(clientIDList[index]);
 }
 
-
-
-
 void OrderManagerForm::on_productcombo_currentIndexChanged(int index)
 {
     emit getProductInfo(productIDList[index]);
 }
 
-
 void OrderManagerForm::on_countspin_valueChanged(int arg1)
 {
     ui->TotalLineEdit->setText(QString::number(arg1 * ui->PriceLineEdit->text().toInt()));
+}
+
+void OrderManagerForm::on_addPushButton_clicked()
+{
+    int id = makeId();
+    int cid,pid, price, count, total;;
+    cid = clientIDList[ui->clientcombo->currentIndex()];
+    pid = productIDList[ui->productcombo->currentIndex()];
+    price = ui->PriceLineEdit->text().toInt();
+    count = ui->countspin->text().toInt();
+    total = ui->TotalLineEdit->text().toInt();
+    QString cname = ui->clientcombo->itemText(clientIDList.indexOf(cid));
+    QString pname = ui->productcombo->itemText(productIDList.indexOf(pid));
+
+    QSqlDatabase db = QSqlDatabase::database("orderConnection");
+
+    if(db.isOpen()&&cname.length()) {
+        QSqlQuery query(orderModel->database());
+        query.prepare("INSERT INTO order VALUES (:id, :cname, :pname, :price, :count, :total)");
+        query.bindValue(":id", id);
+        query.bindValue(":cname", cname);
+        query.bindValue(":pname", pname);
+        query.bindValue(":price", price);
+        query.bindValue(":count", count);
+        query.bindValue(":total", total);
+        query.exec();
+        orderModel->select();
+        ui->tableView->resizeColumnsToContents();
+
+    }
+}
+
+void OrderManagerForm::on_tableView_clicked(const QModelIndex &index)
+{
+    QString id = orderModel->data(index.siblingAtColumn(0)).toString();
+    QString cname = orderModel->data(index.siblingAtColumn(1)).toString();
+    QString pname = orderModel->data(index.siblingAtColumn(2)).toString();
+    int price = orderModel->data(index.siblingAtColumn(3)).toInt();
+    int count = orderModel->data(index.siblingAtColumn(4)).toInt();
+    int total = orderModel->data(index.siblingAtColumn(5)).toInt();
+    ui->idLineEdit->setText(id);
+    ui->clientcombo->setCurrentText(cname);
+    ui->productcombo->setCurrentText(pname);
+    ui->PriceLineEdit->setText(QString::number(price));
+    ui->countspin->setValue(count);
+    ui->TotalLineEdit->setText(QString::number(total));
+    ui->toolBox->setCurrentIndex(0);
 }
 

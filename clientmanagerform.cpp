@@ -24,7 +24,6 @@ ClientManagerForm::ClientManagerForm(QWidget *parent) :
 
     menu = new QMenu;
     menu->addAction(removeAction);
-    // ui->treeWidget->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(ui->searchLineEdit, SIGNAL(returnPressed()),
@@ -32,16 +31,11 @@ ClientManagerForm::ClientManagerForm(QWidget *parent) :
 
 }
 
-
-//void ClientManagerForm::addClient(ClientItem*) //clientItem의 client를 저장하기 위한 함수
-//{
-//    emit talktoorder(&clientList);
-//}
-
 void ClientManagerForm::loadData() //clientItem의 txt파일을 불러오기 위한 함수
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE","clientConnection");
     db.setDatabaseName("client.db");
+    qDebug("hihi!!!!!!!!!!");
     if(db.open()){
         QSqlQuery query(db);
         query.exec("CREATE TABLE IF NOT EXISTS client(id INTEGER Primary Key, name VARCHAR(30) NOT NULL, "
@@ -93,7 +87,6 @@ void ClientManagerForm::removeItem() //삭제
 {
     QModelIndex index = ui->tableView->currentIndex();
     if(index.isValid()) {
-
         clientModel->removeRow(index.row());
         clientModel->select();
         ui->tableView->resizeColumnsToContents();
@@ -143,7 +136,7 @@ void ClientManagerForm::on_modifyPushButton_clicked()
         clientModel->setData(index.siblingAtColumn(3), address);
         clientModel->submit();
 
-        clientModel->select();
+//        clientModel->select();
         ui->tableView->resizeColumnsToContents();
     }
 }
@@ -161,7 +154,7 @@ void ClientManagerForm::on_addPushButton_clicked() //addPushbutton을 눌렀을�
 
     if(db.isOpen()&&name.length()) {
         QSqlQuery query(clientModel->database());
-        query.prepare("INSERT INTO client VALUES (id, name, number, address)");
+        query.prepare("INSERT INTO client VALUES (?, ?, ?, ?)");
         query.bindValue(0, id);
         query.bindValue(1, name);
         query.bindValue(2, number);

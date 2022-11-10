@@ -29,26 +29,27 @@ public:
 public slots:
     void addClient(int, QString);
     void addProduct(int, QString);
-    void getClientInfo(QString, QString, QString);     // 응답
-    void getProductInfo(QString, int, int);     // 응답
+    void getClientInfo( QString, QString, QString);     // 응답
+    void getProductInfo( QString, QString, int, int);     // 응답
 
 private slots:
-
-    void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
-    void on_addButton_Clicked();
+   // void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
     void on_searchPushButton_clicked();
     void showContextMenu(const QPoint &);
     void removeItem();
     void total(QString);
-     void on_ClientW_itemClicked(QTreeWidgetItem *item, int column);
-     void on_ProductW_itemClicked(QTreeWidgetItem *item, int column);
-     void on_modifyPushButton_clicked();
 
-     void on_clientcombo_currentIndexChanged(int index);
+    void on_ClientW_itemClicked(QTreeWidgetItem *item, int column);
+    void on_ProductW_itemClicked(QTreeWidgetItem *item, int column);
+    void on_modifyPushButton_clicked();
 
-     void on_productcombo_currentIndexChanged(int index);
+    void on_clientcombo_currentIndexChanged(int index);
+    void on_productcombo_currentIndexChanged(int index);
+    void on_countspin_valueChanged(int arg1);
 
-     void on_countspin_valueChanged(int arg1);
+    void on_addPushButton_clicked();
+
+    void on_tableView_clicked(const QModelIndex &index);
 
 signals:
     void datasant(QString);

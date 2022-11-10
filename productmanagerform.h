@@ -7,6 +7,7 @@
 class ProductItem;
 class QMenu;
 class QTreeWidgetItem;
+class QSqlTableModel;
 
 namespace Ui {
 class ProductManagerForm;
@@ -21,32 +22,27 @@ public:
     ~ProductManagerForm();
     void loadData();
 
-    QMap<int, ProductItem*>& getProducts(){return ProductList;}
-
 private slots:
     /* QTreeWidget을 위한 슬롯 */
-    void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
     void showContextMenu(const QPoint &);
     void removeItem();              /* QAction을 위한 슬롯 */
     void on_addPushButton_clicked();
     void on_modifyPushButton_clicked();
     void on_searchPushButton_clicked();
-
-  //  void addProduct(ProductItem*);
     void acceptProductInfo(int);
-
+    void on_tableView_clicked(const QModelIndex &index);
 
 signals:
     void productAdded(int, QString);
-    void sendProductInfo(QString, int, int);
+    void sendProductInfo(QString, QString, int, int);
     void talktoorder(QMap<int, ProductItem*>*);
 
 private:
     Ui::ProductManagerForm *ui;
     int makeId();
-    QMap<int, ProductItem*> ProductList;
+   // QMap<int, ProductItem*> ProductList;
     QMenu* menu;
-
+    QSqlTableModel* productModel;
 
 };
 
