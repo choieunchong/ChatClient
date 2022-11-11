@@ -8,7 +8,7 @@ class ProductItem;
 class QMenu;
 class QTreeWidgetItem;
 class QSqlTableModel;
-
+class QStandardItemModel;
 namespace Ui {
 class ProductManagerForm;
 }
@@ -33,7 +33,7 @@ private slots:
     void on_tableView_clicked(const QModelIndex &index);
 
 signals:
-    void productAdded(int, QString);
+    void productAdded(int, QString, QString, int, int);
     void sendProductInfo(QString, QString, int, int);
     void talktoorder(QMap<int, ProductItem*>*);
 
@@ -43,7 +43,7 @@ private:
    // QMap<int, ProductItem*> ProductList;
     QMenu* menu;
     QSqlTableModel* productModel;
-
+    QStandardItemModel *searchModel;
 };
 
 #endif // PRODUCTMANAGERFORM_H

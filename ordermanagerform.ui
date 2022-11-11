@@ -69,7 +69,7 @@
       <widget class="QTableView" name="tableView"/>
       <widget class="QToolBox" name="toolBox">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="inputPage">
         <property name="geometry">
@@ -252,86 +252,60 @@
         <attribute name="label">
          <string>&amp;Search</string>
         </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
+        <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
-          <widget class="QTreeWidget" name="searchTreeWidget">
-           <property name="rootIsDecorated">
-            <bool>false</bool>
-           </property>
-           <column>
-            <property name="text">
-             <string>ID</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>ClientName</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>ProductName</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>Price</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>Count</string>
-            </property>
-           </column>
-           <column>
-            <property name="text">
-             <string>Total</string>
-            </property>
-           </column>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout">
+          <layout class="QVBoxLayout" name="verticalLayout_3">
            <item>
-            <widget class="QComboBox" name="searchComboBox">
+            <layout class="QVBoxLayout" name="verticalLayout">
              <item>
-              <property name="text">
-               <string>ID</string>
-              </property>
+              <widget class="QTableView" name="serchTableView"/>
              </item>
              <item>
-              <property name="text">
-               <string>Name</string>
-              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <item>
+                <widget class="QComboBox" name="searchComboBox">
+                 <item>
+                  <property name="text">
+                   <string>ID</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Name</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>ProductName</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Price</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>Count</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLineEdit" name="searchLineEdit"/>
+               </item>
+              </layout>
              </item>
-             <item>
-              <property name="text">
-               <string>ProductName</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Price</string>
-              </property>
-             </item>
-             <item>
-              <property name="text">
-               <string>Count</string>
-              </property>
-             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QPushButton" name="searchPushButton">
+             <property name="text">
+              <string>S&amp;earch</string>
+             </property>
             </widget>
            </item>
-           <item>
-            <widget class="QLineEdit" name="searchLineEdit"/>
-           </item>
           </layout>
-         </item>
-         <item>
-          <widget class="QPushButton" name="searchPushButton">
-           <property name="text">
-            <string>S&amp;earch</string>
-           </property>
-          </widget>
          </item>
         </layout>
        </widget>

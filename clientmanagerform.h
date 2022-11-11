@@ -9,6 +9,7 @@ class QMenu;
 class QTreeWidgetItem;
 class QSqlTableModel;
 class QSqlDatabase;
+class QStandardItemModel;
 
 namespace Ui {
 class ClientManagerForm;
@@ -36,9 +37,9 @@ private slots:
     void on_tableView_clicked(const QModelIndex &index);
 
 signals:
-    void clientAdded(int,QString);
+    void clientAdded(int,QString, QString, QString);
     void talktoorder(QMap<int, ClientItem*>*);
-    void tcpClient(int, QString);
+    void tcpClient(int, QString, QString, QString);
     void sendClientInfo(QString, QString, QString);
 private:
     int makeId();
@@ -47,6 +48,7 @@ private:
     Ui::ClientManagerForm *ui;
     QMenu* menu;
     QSqlTableModel* clientModel;
+    QStandardItemModel* searchModel;
 };
 
 #endif // CLIENTMANAGERFORM_H

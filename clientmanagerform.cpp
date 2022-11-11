@@ -8,6 +8,7 @@
 #include<QSqlDatabase>
 #include <QSqlRecord>
 #include <QSqlQuery>
+#include <QStandardItemModel>
 
 ClientManagerForm::ClientManagerForm(QWidget *parent) :
     QWidget(parent),
@@ -28,6 +29,13 @@ ClientManagerForm::ClientManagerForm(QWidget *parent) :
     connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(ui->searchLineEdit, SIGNAL(returnPressed()),
             this, SLOT(on_searchPushButton_clicked()));
+
+    searchModel = new QStandardItemModel(0, 4);
+    searchModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
+    searchModel->setHeaderData(1, Qt::Horizontal, tr("Name"));
+    searchModel->setHeaderData(2, Qt::Horizontal, tr("Phone Number"));
+    searchModel->setHeaderData(3, Qt::Horizontal, tr("Address"));
+    ui->serchTableView->setModel(searchModel);
 
 }
 
@@ -56,7 +64,9 @@ void ClientManagerForm::loadData() //clientItem의 txt파일을 불러오기 위
     for(int i = 0; i < clientModel->rowCount(); i++) {
         int id = clientModel->data(clientModel->index(i, 0)).toInt();
         QString name = clientModel->data(clientModel->index(i, 1)).toString();
-        emit clientAdded(id,name);
+        QString number = clientModel->data(clientModel->index(i, 2)).toString();
+        QString address = clientModel->data(clientModel->index(i, 3)).toString();
+        emit clientAdded(id,name, number, address);
     }
 
 }
@@ -102,7 +112,7 @@ void ClientManagerForm::showContextMenu(const QPoint &pos)
 
 void ClientManagerForm::on_searchPushButton_clicked()
 {
-    ui->searchTreeWidget->clear();
+    searchModel->clear();
     int i = ui->searchComboBox->currentIndex();
     auto flag = (i)? Qt::MatchCaseSensitive|Qt::MatchContains
                    : Qt::MatchCaseSensitive;
@@ -115,10 +125,15 @@ void ClientManagerForm::on_searchPushButton_clicked()
         QString address = clientModel->data(ix.siblingAtColumn(3)).toString();
         QStringList strings;
         strings << QString::number(id) << name << number << address;
-        new QTreeWidgetItem(ui->searchTreeWidget, strings);
-        for(int i = 0; i < ui->searchTreeWidget->columnCount(); i++)
-            ui->searchTreeWidget->resizeColumnToContents(i);
+
+        QList<QStandardItem *> items;
+        for (int i = 0; i < 4; ++i) {
+            items.append(new QStandardItem(strings.at(i)));
+        }
+        searchModel->appendRow(items);
+        ui->serchTableView->resizeColumnsToContents();
     }
+
 }
 
 void ClientManagerForm::on_modifyPushButton_clicked()
@@ -136,7 +151,7 @@ void ClientManagerForm::on_modifyPushButton_clicked()
         clientModel->setData(index.siblingAtColumn(3), address);
         clientModel->submit();
 
-//        clientModel->select();
+        //        clientModel->select();
         ui->tableView->resizeColumnsToContents();
     }
 }
@@ -162,7 +177,7 @@ void ClientManagerForm::on_addPushButton_clicked() //addPushbutton을 눌렀을�
         query.exec();
         clientModel->select();
         ui->tableView->resizeColumnsToContents();
-        emit clientAdded(id, name);
+        emit clientAdded(id, name, number, address);
     }
 }
 

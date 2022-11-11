@@ -69,7 +69,7 @@ private slots:
     void clientConnect( );                       /* 채팅 서버 */
     void receiveData( );
     void removeClient( );
-    void addClient(int, QString);
+    void addClient(int, QString, QString, QString);
     void inviteClient();
     void kickOut();
     void message(); //입력중 ~

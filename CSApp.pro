@@ -16,7 +16,6 @@ SOURCES += \
     mainwindow.cpp \
     orderitem.cpp \
     ordermanagerform.cpp \
-    productitem.cpp \
     productmanagerform.cpp
 
 HEADERS += \
@@ -26,7 +25,6 @@ HEADERS += \
     mainwindow.h \
     orderitem.h \
     ordermanagerform.h \
-    productitem.h \
     productmanagerform.h
 
 FORMS += \

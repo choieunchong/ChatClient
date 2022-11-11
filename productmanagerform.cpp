@@ -1,5 +1,4 @@
 #include "productmanagerform.h"
-#include "productitem.h"
 #include "ui_productmanagerform.h"
 
 #include <QMenu>
@@ -8,6 +7,8 @@
 #include <QSqlQuery>
 #include <QSqlTableModel>
 #include <QSqlRecord>
+#include <QMessageBox>
+#include <QStandardItemModel>
 
 ProductManagerForm::ProductManagerForm(QWidget *parent) :
     QWidget(parent),
@@ -28,6 +29,15 @@ ProductManagerForm::ProductManagerForm(QWidget *parent) :
     connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(ui->searchLineEdit, SIGNAL(returnPressed()),
             this, SLOT(on_searchPushButton_clicked()));
+
+    searchModel = new QStandardItemModel(0, 4);
+    searchModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
+    searchModel->setHeaderData(1, Qt::Horizontal, tr("Name"));
+    searchModel->setHeaderData(2, Qt::Horizontal, tr("Type"));
+    searchModel->setHeaderData(3, Qt::Horizontal, tr("Price"));
+    searchModel->setHeaderData(4, Qt::Horizontal, tr("Stock"));
+    ui->serchtableView->setModel(searchModel);
+     ui->tableView->resizeColumnsToContents();
 }
 
 void ProductManagerForm::loadData()
@@ -55,19 +65,22 @@ void ProductManagerForm::loadData()
     for(int i = 0; i < productModel->rowCount(); i++) {
         int id = productModel->data(productModel->index(i, 0)).toInt();
         QString name = productModel->data(productModel->index(i, 1)).toString();
+        QString type = productModel ->data(productModel->index(i,2)).toString();
+        int price = productModel ->data(productModel->index(i,3)).toInt();
+        int stock = productModel ->data(productModel->index(i,4)).toInt();
         //clientList.insert(id, clientModel->index(i, 0));
-        emit productAdded(id, name);
+        emit productAdded(id, name, type, price, stock);
     }
 }
 
 ProductManagerForm::~ProductManagerForm()
 {
     delete ui;
-     QSqlDatabase db = QSqlDatabase::database("productConnection");
+    QSqlDatabase db = QSqlDatabase::database("productConnection");
     if(db.isOpen()) {
         productModel->submitAll();
+        delete productModel;
         db.close();
-         QSqlDatabase::removeDatabase("productConnection");
     }
 }
 
@@ -90,6 +103,8 @@ void ProductManagerForm::removeItem()
         productModel->removeRow(index.row());
         productModel->select();
         ui->tableView->resizeColumnsToContents();
+    }else {
+        QMessageBox::warning(this, tr("Product Manager"), tr("No Item is selected"));
     }
 }
 
@@ -97,12 +112,13 @@ void ProductManagerForm::removeItem()
 void ProductManagerForm::showContextMenu(const QPoint &pos)
 {
     QPoint globalPos = ui->tableView->mapToGlobal(pos);
-    menu->exec(globalPos);
+    if(ui->tableView->indexAt(pos).isValid())
+        menu->exec(globalPos);
 }
 
 void ProductManagerForm::on_searchPushButton_clicked()
 {
-    ui->searchTreeWidget->clear();
+    searchModel->clear();
     int i = ui->searchComboBox->currentIndex();
     auto flag = (i)? Qt::MatchCaseSensitive|Qt::MatchContains
                    : Qt::MatchCaseSensitive;
@@ -116,60 +132,65 @@ void ProductManagerForm::on_searchPushButton_clicked()
         QString stock =  productModel->data(ix.siblingAtColumn(4)).toString();
         QStringList strings;
         strings << QString::number(id) << name << type << price<< stock;
-        new QTreeWidgetItem(ui->searchTreeWidget, strings);
-        for(int i = 0; i < ui->searchTreeWidget->columnCount(); i++)
-            ui->searchTreeWidget->resizeColumnToContents(i);
+
+        QList<QStandardItem *> items;
+        for (int i = 0; i < 4; ++i) {
+            items.append(new QStandardItem(strings.at(i)));
+        }
+        searchModel->appendRow(items);
+        ui->serchtableView->resizeColumnsToContents();
     }
+
 }
 
 
 void ProductManagerForm::on_addPushButton_clicked()
 {
-    QString name, type, price, stock;
+    QString name, type;
+    int    price, stock;
     int id = makeId( );
     name = ui->ProductNameLineEdit->text();
     type = ui->typeLineEdit->text();
-    price = ui->PriceLineEdit->text();
-    stock = ui-> stockspinBox->text();
+    price = ui->PriceLineEdit->text().toInt();
+    stock = ui-> stockspinBox->text().toInt();
 
-     QSqlDatabase db = QSqlDatabase::database("productConnection");
+    QSqlDatabase db = QSqlDatabase::database("productConnection");
 
-     if(name.length()) {
-         QSqlQuery query(productModel->database());
-         query.prepare("INSERT INTO product VALUES (:id, :name, :type, :price, :stock)");
-         query.bindValue(":id", id);
-         query.bindValue(":name", name);
-         query.bindValue(":type", type);
-         query.bindValue(":price", price);
-         query.bindValue(":stock", stock);
-         query.exec();
-         productModel->select();
-         ui->tableView->resizeColumnsToContents();
-         emit productAdded(id, name);
-     }
+    if(name.length()) {
+        QSqlQuery query(productModel->database());
+        query.prepare("INSERT INTO product VALUES (:id, :name, :type, :price, :stock)");
+        query.bindValue(":id", id);
+        query.bindValue(":name", name);
+        query.bindValue(":type", type);
+        query.bindValue(":price", price);
+        query.bindValue(":stock", stock);
+        query.exec();
+        productModel->select();
+        ui->tableView->resizeColumnsToContents();
+        emit productAdded(id, name, type, price, stock);
+    }
 }
 
 
 void ProductManagerForm::on_modifyPushButton_clicked()
 {
-     QModelIndex index  = ui->tableView->currentIndex();
-     if(index.isValid()) {
- //        int id = clientModel->data(index.siblingAtColumn(0)).toInt();
-         QString name, type, price, stock;
-         name = ui->ProductNameLineEdit->text();
-         type = ui->typeLineEdit->text();
-         price = ui->PriceLineEdit->text();
-         stock = ui->stockspinBox->text();
- //        clientModel->setData(index.siblingAtColumn(0), id);
-         productModel->setData(index.siblingAtColumn(1), name);
-         productModel->setData(index.siblingAtColumn(2), type);
-         productModel->setData(index.siblingAtColumn(3), price);
-         productModel->setData(index.siblingAtColumn(4), stock);
-         productModel->submit();
+    QModelIndex index  = ui->tableView->currentIndex(); //tableview에 index담기
+    if(index.isValid()) {
+        //        int id = clientModel->data(index.siblingAtColumn(0)).toInt();
+        QString name, type, price, stock;
+        name = ui->ProductNameLineEdit->text();
+        type = ui->typeLineEdit->text();
+        price = ui->PriceLineEdit->text();
+        stock = ui->stockspinBox->text();
+        //        clientModel->setData(index.siblingAtColumn(0), id);
+        productModel->setData(index.siblingAtColumn(1), name);
+        productModel->setData(index.siblingAtColumn(2), type);
+        productModel->setData(index.siblingAtColumn(3), price);
+        productModel->setData(index.siblingAtColumn(4), stock);
+        productModel->submit();
 
-//         productModel->select();
-         ui->tableView->resizeColumnsToContents();
-     }
+        ui->tableView->resizeColumnsToContents();
+    }
 }
 
 void ProductManagerForm::acceptProductInfo(int key)
@@ -177,7 +198,7 @@ void ProductManagerForm::acceptProductInfo(int key)
     QModelIndexList indexes = productModel->match(productModel->index(0, 0), Qt::EditRole, key, -1, Qt::MatchFlags(Qt::MatchCaseSensitive));
 
     foreach(auto index, indexes) {
-//    QModelIndex index = clientList[key];
+        //    QModelIndex index = clientList[key];
         QString name = productModel->data(index.siblingAtColumn(1)).toString();
         QString type = productModel->data(index.siblingAtColumn(2)).toString();
         int price = productModel->data(index.siblingAtColumn(3)).toInt();
@@ -193,14 +214,14 @@ void ProductManagerForm::on_tableView_clicked(const QModelIndex &index)
     int id = productModel->data(index.siblingAtColumn(0)).toInt();
     QString name = productModel->data(index.siblingAtColumn(1)).toString();
     QString type = productModel->data(index.siblingAtColumn(2)).toString();
-    QString price = productModel->data(index.siblingAtColumn(3)).toString();
-    QString stock = productModel->data(index.siblingAtColumn(4)).toString();
+    int price = productModel->data(index.siblingAtColumn(3)).toInt();
+    int stock = productModel->data(index.siblingAtColumn(4)).toInt();
 
     ui->idLineEdit->setText(QString::number(id));
     ui->ProductNameLineEdit->setText(name);
     ui->typeLineEdit->setText(type);
-    ui->PriceLineEdit->setText(price);
-    ui->stockspinBox->setValue(5);
+    ui->PriceLineEdit->setText(QString::number(price));
+    ui->stockspinBox->setValue(stock);
     ui->toolBox->setCurrentIndex(0);
 }
 

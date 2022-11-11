@@ -229,7 +229,7 @@ void ChatServerForm::removeClient()
     }
 }
 
-void ChatServerForm::addClient(int id, QString name)
+void ChatServerForm::addClient(int id, QString name, QString number, QString address)
 {
     QTreeWidgetItem* item = new QTreeWidgetItem(ui->clientTreeWidget);
     item->setIcon(0, QIcon(":/image/redpoint.png"));

@@ -9,6 +9,7 @@ class orderitem;
 class QMenu;
 class QTreeWidgetItem;
 class QSqlTableModel;
+class QSqlTableModel;
 
 namespace Ui {
 class OrderManagerForm;
@@ -27,8 +28,8 @@ public:
     ProductManagerForm *product;
 
 public slots:
-    void addClient(int, QString);
-    void addProduct(int, QString);
+    void addClient(int, QString, QString, QString);
+    void addProduct(int, QString, QString, int, int);
     void getClientInfo( QString, QString, QString);     // 응답
     void getProductInfo( QString, QString, int, int);     // 응답
 
@@ -52,6 +53,7 @@ private slots:
     void on_tableView_clicked(const QModelIndex &index);
 
 signals:
+    void orderAdded(int ,QString, QString, int, int, int);
     void datasant(QString);
     void getClientInfo(int);            // 요청
     void getProductInfo(int);           // 요청
@@ -63,6 +65,7 @@ private:
     QList<int> clientIDList;
     QList<int> productIDList;
     QSqlTableModel* orderModel;
+    QStandardItemModel * searchModel;
 
 };
 
