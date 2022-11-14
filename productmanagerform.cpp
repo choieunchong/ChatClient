@@ -68,7 +68,6 @@ void ProductManagerForm::loadData()
         QString type = productModel ->data(productModel->index(i,2)).toString();
         int price = productModel ->data(productModel->index(i,3)).toInt();
         int stock = productModel ->data(productModel->index(i,4)).toInt();
-        //clientList.insert(id, clientModel->index(i, 0));
         emit productAdded(id, name, type, price, stock);
     }
 }
@@ -83,7 +82,6 @@ ProductManagerForm::~ProductManagerForm()
         db.close();
     }
 }
-
 
 int ProductManagerForm::makeId( )
 {
@@ -106,8 +104,8 @@ void ProductManagerForm::removeItem()
     }else {
         QMessageBox::warning(this, tr("Product Manager"), tr("No Item is selected"));
     }
+     emit productRemove(index.row());
 }
-
 
 void ProductManagerForm::showContextMenu(const QPoint &pos)
 {
@@ -137,7 +135,12 @@ void ProductManagerForm::on_searchPushButton_clicked()
         for (int i = 0; i < 4; ++i) {
             items.append(new QStandardItem(strings.at(i)));
         }
-        searchModel->appendRow(items);
+        searchModel->appendRow(items); 
+        productModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
+        productModel->setHeaderData(1, Qt::Horizontal, tr("Name"));
+        productModel->setHeaderData(2, Qt::Horizontal, tr("type"));
+        productModel->setHeaderData(3, Qt::Horizontal, tr("price"));
+        productModel->setHeaderData(4, Qt::Horizontal, tr("stock"));
         ui->serchtableView->resizeColumnsToContents();
     }
 
@@ -177,12 +180,16 @@ void ProductManagerForm::on_modifyPushButton_clicked()
     QModelIndex index  = ui->tableView->currentIndex(); //tableview에 index담기
     if(index.isValid()) {
         //        int id = clientModel->data(index.siblingAtColumn(0)).toInt();
-        QString name, type, price, stock;
+        QString name, type;
+        int id ;
+        int price, stock;
+        id = ui->idLineEdit->text().toInt();
         name = ui->ProductNameLineEdit->text();
         type = ui->typeLineEdit->text();
-        price = ui->PriceLineEdit->text();
-        stock = ui->stockspinBox->text();
-        //        clientModel->setData(index.siblingAtColumn(0), id);
+        price = ui->PriceLineEdit->text().toInt();
+        stock = ui->stockspinBox->text().toInt();
+
+        productModel->setData(index.siblingAtColumn(0), id);
         productModel->setData(index.siblingAtColumn(1), name);
         productModel->setData(index.siblingAtColumn(2), type);
         productModel->setData(index.siblingAtColumn(3), price);
@@ -190,6 +197,8 @@ void ProductManagerForm::on_modifyPushButton_clicked()
         productModel->submit();
 
         ui->tableView->resizeColumnsToContents();
+        emit productRemove(index.row());
+         emit productAdded(id, name, type, price, stock);
     }
 }
 
@@ -206,7 +215,6 @@ void ProductManagerForm::acceptProductInfo(int key)
         emit sendProductInfo(name, type, price, stock);
     }
 }
-
 
 
 void ProductManagerForm::on_tableView_clicked(const QModelIndex &index)

@@ -30,6 +30,12 @@ MainWindow::MainWindow(QWidget *parent)
     connect(clientForm, SIGNAL(sendClientInfo(QString, QString, QString)),
             orderForm, SLOT(getClientInfo(QString, QString, QString)));
 
+//    connect(clientForm, SIGNAL(clientRemove()),
+//            orderForm, SLOT(removeItem()));
+
+    connect(clientForm, SIGNAL(clientRemove(int)),
+            orderForm, SLOT(ClientRemove(int)));
+
     connect(clientForm, SIGNAL(clientAdded(int, QString, QString, QString)),
             chatServerForm, SLOT(addClient(int, QString, QString, QString)));
 
@@ -44,6 +50,9 @@ MainWindow::MainWindow(QWidget *parent)
             orderForm, SLOT(addProduct(int, QString, QString, int, int)));
     connect(productForm, SIGNAL(sendProductInfo(QString, QString, int, int)),
             orderForm, SLOT(getProductInfo(QString, QString, int, int)));
+
+    connect(productForm, SIGNAL(productRemove(int)),
+            orderForm, SLOT(ProductRemove(int)));
 
     productForm->loadData();
     productForm->setWindowTitle(tr("Product Info"));

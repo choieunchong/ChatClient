@@ -36,7 +36,7 @@ signals:
     void productAdded(int, QString, QString, int, int);
     void sendProductInfo(QString, QString, int, int);
     void talktoorder(QMap<int, ProductItem*>*);
-
+    void productRemove(int);
 private:
     Ui::ProductManagerForm *ui;
     int makeId();

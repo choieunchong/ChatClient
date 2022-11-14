@@ -43,7 +43,6 @@ void ClientManagerForm::loadData() //clientItem의 txt파일을 불러오기 위
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE","clientConnection");
     db.setDatabaseName("client.db");
-    qDebug("hihi!!!!!!!!!!");
     if(db.open()){
         QSqlQuery query(db);
         query.exec("CREATE TABLE IF NOT EXISTS client(id INTEGER Primary Key, name VARCHAR(30) NOT NULL, "
@@ -100,6 +99,7 @@ void ClientManagerForm::removeItem() //삭제
         clientModel->removeRow(index.row());
         clientModel->select();
         ui->tableView->resizeColumnsToContents();
+        emit clientRemove(index.row());
     }
 }
 
@@ -131,6 +131,11 @@ void ClientManagerForm::on_searchPushButton_clicked()
             items.append(new QStandardItem(strings.at(i)));
         }
         searchModel->appendRow(items);
+        searchModel->setHeaderData(0, Qt::Horizontal, QObject::tr("ID"));
+        searchModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Name"));
+        searchModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Phone Number"));
+        searchModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Address"));
+
         ui->serchTableView->resizeColumnsToContents();
     }
 
@@ -141,11 +146,14 @@ void ClientManagerForm::on_modifyPushButton_clicked()
     QModelIndex index = ui->tableView->currentIndex();
     if(index.isValid()) {
         //      int id = clientModel->data(index.siblingAtColumn(0)).toInt();
-        QString name, number, address;
+        QString  name, number, address;
+        int id ;
+        id = ui->idLineEdit->text().toInt();
         name = ui->nameLineEdit->text();
         number = ui->phoneNumberLineEdit->text();
         address = ui->addressLineEdit->text();
 
+        clientModel->setData(index.siblingAtColumn(0), id);
         clientModel->setData(index.siblingAtColumn(1), name);
         clientModel->setData(index.siblingAtColumn(2), number);
         clientModel->setData(index.siblingAtColumn(3), address);
@@ -153,6 +161,8 @@ void ClientManagerForm::on_modifyPushButton_clicked()
 
         //        clientModel->select();
         ui->tableView->resizeColumnsToContents();
+        emit clientRemove(index.row());
+        emit clientAdded(id, name, number, address);
     }
 }
 

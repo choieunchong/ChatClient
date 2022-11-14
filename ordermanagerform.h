@@ -38,14 +38,13 @@ private slots:
     void on_searchPushButton_clicked();
     void showContextMenu(const QPoint &);
     void removeItem();
+    void ClientRemove(int);
     void total(QString);
-
+    void ProductRemove(int);
     void on_ClientW_itemClicked(QTreeWidgetItem *item, int column);
     void on_ProductW_itemClicked(QTreeWidgetItem *item, int column);
     void on_modifyPushButton_clicked();
 
-    void on_clientcombo_currentIndexChanged(int index);
-    void on_productcombo_currentIndexChanged(int index);
     void on_countspin_valueChanged(int arg1);
 
     void on_addPushButton_clicked();

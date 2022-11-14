@@ -41,6 +41,7 @@ signals:
     void talktoorder(QMap<int, ClientItem*>*);
     void tcpClient(int, QString, QString, QString);
     void sendClientInfo(QString, QString, QString);
+    void clientRemove(int);
 private:
     int makeId();
 

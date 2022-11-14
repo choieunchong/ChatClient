@@ -30,7 +30,7 @@ OrderManagerForm::OrderManagerForm(QWidget *parent)
     connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
     connect(ui->searchLineEdit, SIGNAL(returnPressed()),
             this, SLOT(on_searchPushButton_clicked()));
-    connect(ui->addPushButton, SIGNAL(pressed()), this, SLOT(on_addPushButton_clicked()));
+    //  connect(ui->addPushButton, SIGNAL(pressed()), this, SLOT(on_addPushButton_clicked()));
     connect(ui->countspin, SIGNAL(textChanged(QString)),this, SLOT(total(QString)));
 
     searchModel = new QStandardItemModel(0, 6);
@@ -47,6 +47,7 @@ OrderManagerForm::OrderManagerForm(QWidget *parent)
 void OrderManagerForm::addProduct(int id, QString name, QString type, int price, int count)
 {
     QTreeWidgetItem *item = new QTreeWidgetItem(ui->ProductW);
+    item->setText(0,QString::number(id));
     item->setText(1,name);
     item->setText(2, type);
     item->setText(3, QString::number(price));
@@ -83,7 +84,7 @@ void OrderManagerForm::getProductInfo( QString name, QString type, int price, in
 {
     ui->ProductW->clear();
     QTreeWidgetItem *item = new QTreeWidgetItem(ui->ProductW);
-    // item->setText(0, QString::number(id));
+    //   item->setText(0, QString::number(id));
     item->setText(1, name);
     item->setText(2,type);
     item->setText(3, QString::number(price));
@@ -97,16 +98,15 @@ void OrderManagerForm::getClientInfo(QString name, QString phoneNumber, QString 
 {
     ui->ClientW->clear();
     QTreeWidgetItem *item = new QTreeWidgetItem(ui->ClientW);
-    //   item->setText(0,QString::number (id));
+  //  item->setText(0,QString::number (0));
     item->setText(1, name);
     item->setText(2, phoneNumber);
     item->setText(3, address);
 }
 
-
 int OrderManagerForm::makeId() //주문정보의 아이디 생성후 증가 방법
 {
-    if(OrderList.size( ) == 0) {
+    if(orderModel->rowCount() == 0) {
         return 100;
     } else {
         auto id = orderModel->data(orderModel->index(orderModel->rowCount()-1, 0)).toInt();
@@ -165,9 +165,22 @@ void OrderManagerForm::removeItem() // 우 클릭을 할때 제거 액션 함수
         orderModel->removeRow(index.row());
         orderModel->select();
         ui->tableView->resizeColumnsToContents();
+
     }
 }
 
+void OrderManagerForm::ClientRemove(int index) // client 데이터 삭제
+{
+
+    ui->ClientW->takeTopLevelItem(index);
+    ui->tableView->resizeColumnsToContents();
+}
+void OrderManagerForm::ProductRemove(int index) // product 데이터 삭제
+{
+
+    ui->ProductW->takeTopLevelItem(index);
+    ui->tableView->resizeColumnsToContents();
+}
 void OrderManagerForm::on_searchPushButton_clicked()
 {
     searchModel->clear();
@@ -191,6 +204,12 @@ void OrderManagerForm::on_searchPushButton_clicked()
             items.append(new QStandardItem(strings.at(i)));
         }
         searchModel->appendRow(items);
+        searchModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
+        searchModel->setHeaderData(1, Qt::Horizontal, tr("Name"));
+        searchModel->setHeaderData(2, Qt::Horizontal, tr("ProductName"));
+        searchModel->setHeaderData(3, Qt::Horizontal, tr("Price"));
+        searchModel->setHeaderData(4, Qt::Horizontal, tr("Count"));
+        searchModel->setHeaderData(5, Qt::Horizontal, tr("Total"));
         ui->serchTableView->resizeColumnsToContents();
     }
 }
@@ -200,12 +219,15 @@ void OrderManagerForm::on_ClientW_itemClicked(QTreeWidgetItem *item, int column)
     Q_UNUSED(column);
     ui->idLineEdit->setText(item->text(0));
     ui->clientcombo->setCurrentText(item->text(1));
+
 }
 
 void OrderManagerForm::on_ProductW_itemClicked(QTreeWidgetItem *item, int column)
 {
-    ui->productcombo->setCurrentText(item->text(2));
+    Q_UNUSED(column);
+    ui->productcombo->setCurrentText(item->text(1));
     ui->PriceLineEdit->setText(item->text(3));
+
 }
 
 void OrderManagerForm::on_modifyPushButton_clicked()
@@ -227,15 +249,6 @@ void OrderManagerForm::on_modifyPushButton_clicked()
     }
 }
 
-void OrderManagerForm::on_clientcombo_currentIndexChanged(int index)
-{
-    emit getClientInfo(clientIDList[index]);
-}
-
-void OrderManagerForm::on_productcombo_currentIndexChanged(int index)
-{
-    emit getProductInfo(productIDList[index]);
-}
 
 void OrderManagerForm::on_countspin_valueChanged(int arg1)
 {
@@ -253,7 +266,6 @@ void OrderManagerForm::on_addPushButton_clicked()
     count = ui->countspin->text().toInt();
     total = ui->TotalLineEdit->text().toInt();
 
-
     QSqlDatabase db = QSqlDatabase::database("orderConnection");
 
     if(db.isOpen()&&cname.length()) {
@@ -268,7 +280,6 @@ void OrderManagerForm::on_addPushButton_clicked()
         query.exec();
         orderModel->select();
         ui->tableView->resizeColumnsToContents();
-
     }
 }
 
