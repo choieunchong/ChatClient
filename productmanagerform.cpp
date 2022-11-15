@@ -54,9 +54,9 @@ void ProductManagerForm::loadData()
         productModel->select();
         productModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
         productModel->setHeaderData(1, Qt::Horizontal, tr("Name"));
-        productModel->setHeaderData(2, Qt::Horizontal, tr("type"));
-        productModel->setHeaderData(3, Qt::Horizontal, tr("price"));
-        productModel->setHeaderData(4, Qt::Horizontal, tr("stock"));
+        productModel->setHeaderData(2, Qt::Horizontal, tr("Type"));
+        productModel->setHeaderData(3, Qt::Horizontal, tr("Price"));
+        productModel->setHeaderData(4, Qt::Horizontal, tr("Stock"));
 
         ui->tableView->setModel(productModel);
         ui->tableView->resizeColumnsToContents();

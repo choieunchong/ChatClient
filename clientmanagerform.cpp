@@ -30,7 +30,7 @@ ClientManagerForm::ClientManagerForm(QWidget *parent) :
     connect(ui->searchLineEdit, SIGNAL(returnPressed()),
             this, SLOT(on_searchPushButton_clicked()));
 
-    searchModel = new QStandardItemModel(0, 4);
+    searchModel = new QStandardItemModel(0, 4); //model에 client정보를 저장한다.
     searchModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
     searchModel->setHeaderData(1, Qt::Horizontal, tr("Name"));
     searchModel->setHeaderData(2, Qt::Horizontal, tr("Phone Number"));
@@ -39,9 +39,9 @@ ClientManagerForm::ClientManagerForm(QWidget *parent) :
 
 }
 
-void ClientManagerForm::loadData() //clientItem의 txt파일을 불러오기 위한 함수
+void ClientManagerForm::loadData() //clientItem의 db파일을 불러오기 위한 함수
 {
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE","clientConnection");
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE","clientConnection"); //sqlLite에 저장하기 위해 Qt에 내장된 sqlLite에 접근한다.
     db.setDatabaseName("client.db");
     if(db.open()){
         QSqlQuery query(db);
@@ -73,7 +73,7 @@ void ClientManagerForm::loadData() //clientItem의 txt파일을 불러오기 위
 ClientManagerForm::~ClientManagerForm()
 {
     delete ui;
-    QSqlDatabase db = QSqlDatabase::database("clientConnection");
+    QSqlDatabase db = QSqlDatabase::database("clientConnection"); //clientConnection에 접근한다.
     if(db.isOpen()) {
         clientModel->submitAll();
         db.close();
@@ -153,7 +153,7 @@ void ClientManagerForm::on_modifyPushButton_clicked()
         number = ui->phoneNumberLineEdit->text();
         address = ui->addressLineEdit->text();
 
-        clientModel->setData(index.siblingAtColumn(0), id);
+        clientModel->setData(index.siblingAtColumn(0), id); //client model에 해당하는 row에 접근한다.
         clientModel->setData(index.siblingAtColumn(1), name);
         clientModel->setData(index.siblingAtColumn(2), number);
         clientModel->setData(index.siblingAtColumn(3), address);
@@ -178,7 +178,7 @@ void ClientManagerForm::on_addPushButton_clicked() //addPushbutton을 눌렀을�
     QSqlDatabase db = QSqlDatabase::database("clientConnection");
 
     if(db.isOpen()&&name.length()) {
-        QSqlQuery query(clientModel->database());
+        QSqlQuery query(clientModel->database()); //query를 생성한후 database에 저장한다.
         query.prepare("INSERT INTO client VALUES (?, ?, ?, ?)");
         query.bindValue(0, id);
         query.bindValue(1, name);
@@ -191,7 +191,7 @@ void ClientManagerForm::on_addPushButton_clicked() //addPushbutton을 눌렀을�
     }
 }
 
-void ClientManagerForm::acceptClientInfo(int key)
+void ClientManagerForm::acceptClientInfo(int key) //client의 정보를 connect할 함수
 {
     QModelIndexList indexes = clientModel->match(clientModel->index(0, 0), Qt::EditRole, key, -1, Qt::MatchFlags(Qt::MatchCaseSensitive));
 
@@ -204,7 +204,7 @@ void ClientManagerForm::acceptClientInfo(int key)
     }
 }
 
-void ClientManagerForm::on_tableView_clicked(const QModelIndex &index)
+void ClientManagerForm::on_tableView_clicked(const QModelIndex &index) //model에 저장된 정보를 tableview에 보여주며 tableview를 clicked할때 액션을 주기위한 함수
 {
     QString id = clientModel->data(index.siblingAtColumn(0)).toString();
     QString name = clientModel->data(index.siblingAtColumn(1)).toString();

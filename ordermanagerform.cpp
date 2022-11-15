@@ -125,12 +125,12 @@ void OrderManagerForm::loadData() //주문정보에 txt파일로 저장하기 �
         orderModel = new QSqlTableModel(this,db);
         orderModel->setTable("orders");
         orderModel->select();
-        orderModel->setHeaderData(0, Qt::Horizontal, tr("id"));
-        orderModel->setHeaderData(1, Qt::Horizontal, tr("cName"));
-        orderModel->setHeaderData(2, Qt::Horizontal, tr("pname"));
-        orderModel->setHeaderData(3, Qt::Horizontal, tr("price"));
-        orderModel->setHeaderData(4, Qt::Horizontal, tr("count"));
-        orderModel->setHeaderData(5, Qt::Horizontal, tr("total"));
+        orderModel->setHeaderData(0, Qt::Horizontal, tr("ID"));
+        orderModel->setHeaderData(1, Qt::Horizontal, tr("Name"));
+        orderModel->setHeaderData(2, Qt::Horizontal, tr("ProductName"));
+        orderModel->setHeaderData(3, Qt::Horizontal, tr("Price"));
+        orderModel->setHeaderData(4, Qt::Horizontal, tr("Count"));
+        orderModel->setHeaderData(5, Qt::Horizontal, tr("Total"));
 
         ui->tableView->setModel(orderModel);
         ui->tableView->resizeColumnsToContents();
@@ -153,7 +153,7 @@ OrderManagerForm::~OrderManagerForm() //소멸자 종료될때 order.txt파일�
     QSqlDatabase db = QSqlDatabase::database("orderConnection");
     if(db.isOpen()) {
         orderModel->submitAll();
-        db.close();
+        db.close();  //db종료
         QSqlDatabase::removeDatabase("orderConnection");
     }
 }
@@ -240,7 +240,7 @@ void OrderManagerForm::on_modifyPushButton_clicked()
         Productname = ui->productcombo->currentText();
         price = ui->PriceLineEdit->text().toInt();
         count = ui->countspin->text().toInt();
-        orderModel->setData(index.siblingAtColumn(1), Clientname);
+        orderModel->setData(index.siblingAtColumn(1), Clientname); // ordermodel에 해당하는 row에 접근한다.
         orderModel->setData(index.siblingAtColumn(2), Productname);
         orderModel->setData(index.siblingAtColumn(3), price);
         orderModel->setData(index.siblingAtColumn(4), count);
@@ -271,12 +271,12 @@ void OrderManagerForm::on_addPushButton_clicked()
     if(db.isOpen()&&cname.length()) {
         QSqlQuery query(orderModel->database());
         query.prepare("INSERT INTO orders VALUES (:id, :cname, :pname, :price, :count, :total)");
-        query.bindValue(":id", id);
-        query.bindValue(":cname", cname);
-        query.bindValue(":pname", pname);
-        query.bindValue(":price", price);
-        query.bindValue(":count", count);
-        query.bindValue(":total", total);
+        query.bindValue(tr(":id"), id);
+        query.bindValue(tr(":cname"), cname);
+        query.bindValue(tr(":pname"), pname);
+        query.bindValue(tr(":price"), price);
+        query.bindValue(tr(":count"), count);
+        query.bindValue(tr(":total"), total);
         query.exec();
         orderModel->select();
         ui->tableView->resizeColumnsToContents();

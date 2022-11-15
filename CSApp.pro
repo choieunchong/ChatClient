@@ -28,7 +28,6 @@ HEADERS += \
     productmanagerform.h
 
 FORMS += \
-    TcpClientform.ui \
     chatserverform.ui \
     clientmanagerform.ui \
     mainwindow.ui \
