@@ -26,8 +26,8 @@ ClientManagerForm::ClientManagerForm(QWidget *parent) :
     menu = new QMenu;
     menu->addAction(removeAction);
     ui->tableView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
-    connect(ui->searchLineEdit, SIGNAL(returnPressed()),
+    connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint))); //tableview에 보여주기 위한 connet
+    connect(ui->searchLineEdit, SIGNAL(returnPressed()), // 검색버튼과 연결하기 위한 connet
             this, SLOT(on_searchPushButton_clicked()));
 
     searchModel = new QStandardItemModel(0, 4); //model에 client정보를 저장한다.
@@ -60,7 +60,7 @@ void ClientManagerForm::loadData() //clientItem의 db파일을 불러오기 위�
         ui->tableView->resizeColumnsToContents();
     }
 
-    for(int i = 0; i < clientModel->rowCount(); i++) {
+    for(int i = 0; i < clientModel->rowCount(); i++) { //clientmoel의 row를 돌며 data를 가져온다.
         int id = clientModel->data(clientModel->index(i, 0)).toInt();
         QString name = clientModel->data(clientModel->index(i, 1)).toString();
         QString number = clientModel->data(clientModel->index(i, 2)).toString();
@@ -70,7 +70,7 @@ void ClientManagerForm::loadData() //clientItem의 db파일을 불러오기 위�
 
 }
 
-ClientManagerForm::~ClientManagerForm()
+ClientManagerForm::~ClientManagerForm() // 소멸자
 {
     delete ui;
     QSqlDatabase db = QSqlDatabase::database("clientConnection"); //clientConnection에 접근한다.
@@ -110,7 +110,7 @@ void ClientManagerForm::showContextMenu(const QPoint &pos)
         menu->exec(globalPos);
 }
 
-void ClientManagerForm::on_searchPushButton_clicked()
+void ClientManagerForm::on_searchPushButton_clicked() //검색 버튼을 눌렀을 때
 {
     searchModel->clear();
     int i = ui->searchComboBox->currentIndex();
@@ -118,15 +118,15 @@ void ClientManagerForm::on_searchPushButton_clicked()
                    : Qt::MatchCaseSensitive;
     QModelIndexList indexes = clientModel->match(clientModel->index(0, i), Qt::EditRole, ui->searchLineEdit->text(), -1, Qt::MatchFlags(flag));
 
-    foreach(auto ix, indexes) {
-        int id = clientModel->data(ix.siblingAtColumn(0)).toInt(); //c->id();
+    foreach(auto ix, indexes) { //client model indexe에 접근한다.
+        int id = clientModel->data(ix.siblingAtColumn(0)).toInt(); //c->id(); row에 해당하는 data에 접근한다.
         QString name = clientModel->data(ix.siblingAtColumn(1)).toString();
         QString number = clientModel->data(ix.siblingAtColumn(2)).toString();
         QString address = clientModel->data(ix.siblingAtColumn(3)).toString();
         QStringList strings;
         strings << QString::number(id) << name << number << address;
 
-        QList<QStandardItem *> items;
+        QList<QStandardItem *> items; //item을 돌며 item을 보낸다.
         for (int i = 0; i < 4; ++i) {
             items.append(new QStandardItem(strings.at(i)));
         }
@@ -141,9 +141,9 @@ void ClientManagerForm::on_searchPushButton_clicked()
 
 }
 
-void ClientManagerForm::on_modifyPushButton_clicked()
+void ClientManagerForm::on_modifyPushButton_clicked() // 수정 클릭
 {
-    QModelIndex index = ui->tableView->currentIndex();
+    QModelIndex index = ui->tableView->currentIndex();// 해당하는 index접근한다.
     if(index.isValid()) {
         //      int id = clientModel->data(index.siblingAtColumn(0)).toInt();
         QString  name, number, address;
@@ -177,9 +177,9 @@ void ClientManagerForm::on_addPushButton_clicked() //addPushbutton을 눌렀을�
 
     QSqlDatabase db = QSqlDatabase::database("clientConnection");
 
-    if(db.isOpen()&&name.length()) {
+    if(db.isOpen()&&name.length()) { //db 연결 예외처리
         QSqlQuery query(clientModel->database()); //query를 생성한후 database에 저장한다.
-        query.prepare("INSERT INTO client VALUES (?, ?, ?, ?)");
+        query.prepare("INSERT INTO client VALUES (?, ?, ?, ?)"); //db query 접근
         query.bindValue(0, id);
         query.bindValue(1, name);
         query.bindValue(2, number);

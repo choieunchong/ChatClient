@@ -181,7 +181,7 @@ void OrderManagerForm::ProductRemove(int index) // product 데이터 삭제
     ui->ProductW->takeTopLevelItem(index);
     ui->tableView->resizeColumnsToContents();
 }
-void OrderManagerForm::on_searchPushButton_clicked()
+void OrderManagerForm::on_searchPushButton_clicked() // 검색 할때 model에 저장되어 있는 데이터 보여주는 함수
 {
     searchModel->clear();
     int i = ui->searchComboBox->currentIndex();
@@ -214,7 +214,7 @@ void OrderManagerForm::on_searchPushButton_clicked()
     }
 }
 
-void OrderManagerForm::on_ClientW_itemClicked(QTreeWidgetItem *item, int column)
+void OrderManagerForm::on_ClientW_itemClicked(QTreeWidgetItem *item, int column) // client의 정보를 order에 보여주기 위한 함수
 {
     Q_UNUSED(column);
     ui->idLineEdit->setText(item->text(0));
@@ -222,7 +222,7 @@ void OrderManagerForm::on_ClientW_itemClicked(QTreeWidgetItem *item, int column)
 
 }
 
-void OrderManagerForm::on_ProductW_itemClicked(QTreeWidgetItem *item, int column)
+void OrderManagerForm::on_ProductW_itemClicked(QTreeWidgetItem *item, int column) // product에 있는 정보를 order에 보여주기 위한 함수
 {
     Q_UNUSED(column);
     ui->productcombo->setCurrentText(item->text(1));
@@ -230,7 +230,7 @@ void OrderManagerForm::on_ProductW_itemClicked(QTreeWidgetItem *item, int column
 
 }
 
-void OrderManagerForm::on_modifyPushButton_clicked()
+void OrderManagerForm::on_modifyPushButton_clicked() // order에 있는 tableview를 수정하기 위한 함수
 {
     QModelIndex index = ui->tableView->currentIndex();
     if(index.isValid()) {
@@ -250,17 +250,18 @@ void OrderManagerForm::on_modifyPushButton_clicked()
 }
 
 
-void OrderManagerForm::on_countspin_valueChanged(int arg1)
-{
+void OrderManagerForm::on_countspin_valueChanged(int arg1) //총 합계를 구하기 위한 함수
+{ // total spinbox에 접근하여 총합계와 가격을 곱한다.
     ui->TotalLineEdit->setText(QString::number(arg1 * ui->PriceLineEdit->text().toInt()));
 }
-
-void OrderManagerForm::on_addPushButton_clicked()
+#include <QSqlError>
+void OrderManagerForm::on_addPushButton_clicked() //추가 함수
 {
     int id = makeId();
     QString cname, pname;
     int  price, count, total;;
     cname = ui->clientcombo->currentText();
+    qDebug()<<cname;
     pname = ui->productcombo->currentText();
     price = ui->PriceLineEdit->text().toInt();
     count = ui->countspin->text().toInt();
@@ -268,22 +269,22 @@ void OrderManagerForm::on_addPushButton_clicked()
 
     QSqlDatabase db = QSqlDatabase::database("orderConnection");
 
-    if(db.isOpen()&&cname.length()) {
+    if(db.isOpen()&&cname.length()) { //database에 접근하기 위해
         QSqlQuery query(orderModel->database());
         query.prepare("INSERT INTO orders VALUES (:id, :cname, :pname, :price, :count, :total)");
-        query.bindValue(tr(":id"), id);
-        query.bindValue(tr(":cname"), cname);
-        query.bindValue(tr(":pname"), pname);
-        query.bindValue(tr(":price"), price);
-        query.bindValue(tr(":count"), count);
-        query.bindValue(tr(":total"), total);
+        query.bindValue(":id", id);
+        query.bindValue(":cname", cname);
+        query.bindValue(":pname", pname);
+        query.bindValue(":price", price);
+        query.bindValue(":count", count);
+        query.bindValue(":total", total);
         query.exec();
         orderModel->select();
         ui->tableView->resizeColumnsToContents();
     }
 }
 
-void OrderManagerForm::on_tableView_clicked(const QModelIndex &index)
+void OrderManagerForm::on_tableView_clicked(const QModelIndex &index) //tableview를 클릭하여 data를 보여준다
 {
     QString id = orderModel->data(index.siblingAtColumn(0)).toString();
     QString cname = orderModel->data(index.siblingAtColumn(1)).toString();

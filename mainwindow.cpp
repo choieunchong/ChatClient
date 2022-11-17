@@ -27,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent)
             clientForm, SLOT(deleteLater()));
     connect(clientForm, SIGNAL(clientAdded(int, QString, QString, QString)),
             orderForm, SLOT(addClient(int, QString, QString, QString)));
+
     connect(clientForm, SIGNAL(sendClientInfo(QString, QString, QString)),
             orderForm, SLOT(getClientInfo(QString, QString, QString)));
 
